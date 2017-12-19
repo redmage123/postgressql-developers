@@ -2,25 +2,26 @@
 
 import psycopg2
 import csv
+import sys
 
-''' Solution to Lab 1 Drop and Create automation 
+''' Solution to Lab 1 Drop and Create automation
 '''
 
-def create_tables():
+def create_tables(connect,cur):
     create_tables  = [ ''' CREATE TABLE IF NOT EXISTS source (
                                                    source_id SERIAL PRIMARY KEY NOT NULL,
-                                                   source VARCHAR (50)
+                                                   source_name VARCHAR (100) UNIQUE
                                                   )
                        ''',
                        ''' CREATE TABLE IF NOT EXISTS subject (
                                                   subject_id SERIAL PRIMARY KEY NOT NULL,
-                                                  subject VARCHAR (50)
+                                                  subject_desc VARCHAR (100) UNIQUE
                                            )
                        ''',
 
                        ''' CREATE TABLE IF NOT EXISTS publisher (
                                                   publisher_id SERIAL PRIMARY KEY NOT NULL,
-                                                  publisher VARCHAR (50)
+                                                  publisher_name VARCHAR (100) UNIQUE
                                                )
                        ''',
                        ''' CREATE TABLE IF NOT EXISTS ebook (
@@ -28,7 +29,7 @@ def create_tables():
                                                   source_id SERIAL REFERENCES source(source_id),
                                                   subject_id  SERIAL REFERENCES subject(subject_id),
                                                   publisher_id SERIAL REFERENCES publisher(publisher_id),
-                                                  book_title VARCHAR (50),
+                                                  book_title VARCHAR (200),
                                                   release_year VARCHAR(4),
                                                   status VARCHAR(8),
                                                   availability DATE,
@@ -46,7 +47,7 @@ def create_tables():
     connect.commit()
     return
 
-def drop_tables():
+def drop_tables(connect,cur):
     drop_commands = [ 'DROP TABLE IF EXISTS source CASCADE',
                       'DROP TABLE IF EXISTS subject CASCADE  ',
                       'DROP TABLE IF EXISTS publisher CASCADE ',
@@ -62,15 +63,16 @@ def drop_tables():
     return
 
 
-def main()
+def main():
     try:
-        connect = psycopg2.connect('dbname = ebooks user=student1 password=student1:123')
+        connect = psycopg2.connect('dbname = ebooks user=postgres password=postgres')
     except: 
         print ('Connect Error')
+        sys.exit(1)
     cur = connect.cursor()
 
-    drop_tables()
-    create_tables()
+    drop_tables(connect,cur)
+    create_tables(connect,cur)
     connect.close()
 
 if __name__ == '__main__':
